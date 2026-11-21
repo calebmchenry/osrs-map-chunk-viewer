@@ -2,6 +2,14 @@
 
 Read this file alongside [intent.md](intent.md) before starting work. Keep dated handoff entries here; use WRK tickets for task status and acceptance criteria.
 
+## 2026-11-20 — Highlight feedback published to GitHub Pages
+
+- Committed the requested navigation/highlight changes as **`16abab690caa19c5f1a02bc4a1e5a17b1abcc9b0`** (`Simplify map navigation and add persistent highlight eraser`) and pushed `main` to `origin` at the user's request.
+- [GitHub Pages run 44863079642](https://github.com/calebmchenry/osrs-map-chunk-viewer/actions/runs/44863079642) passed tests, calibrated map verification, production build, and deployment. **Live viewer: https://calebmchenry.github.io/osrs-map-chunk-viewer/**.
+- Live smoke verification returned HTTP 200, found the eraser, and confirmed the region switcher is absent. Published JavaScript and CSS SHA-256 hashes match the previously validated local production build. Existing browser-local save format is unchanged; the private Sites viewer was not updated.
+- `git diff --check` and `wrk validate` passed before publication. The previous entry records the 22 passing local tests and desktop/emulated-phone interaction checks; application inputs have not changed since those checks. This documentation/ticket handoff commit will trigger the same Pages pipeline, with no application changes.
+- Handoff: `wrk-45921f75` is published and complete. Physical-phone acceptance (`wrk-8a2343fd`) can now use the live viewer, including the eraser and 60% highlight opacity. It and basemap review (`wrk-c5c039d7`) remain open.
+
 ## 2026-11-20 — Manual navigation and clearer highlights
 
 - **`wrk-45921f75` is done.** Removed the Mainland/Zeah/Varlamore segment control, sample reference marker, automatic initial outline, and obsolete sample instructions. The initial view remains at Lumbridge; users explore by panning/zooming or Whole world.

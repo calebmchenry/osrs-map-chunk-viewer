@@ -9,7 +9,7 @@ related:
 priority: normal
 labels: []
 ---
-Follow-up extracted from wrk-2e8ee436 so the completed highlight implementation is distinct from device validation. Compact controls were implemented in wrk-83e872b9 and published to GitHub Pages in wrk-fe34fd33. The latest local changes in wrk-45921f75 remove region shortcuts, add an eraser, and increase highlight opacity to 60%; publish those changes before evaluating them on a phone. Use https://calebmchenry.github.io/osrs-map-chunk-viewer/ after publication.
+Follow-up extracted from wrk-2e8ee436 so the completed highlight implementation is distinct from device validation. Compact controls were implemented in wrk-83e872b9 and published to GitHub Pages in wrk-fe34fd33. The changes in wrk-45921f75 remove region shortcuts, add an eraser, and increase highlight opacity to 60%; they are now published by GitHub Pages run 44863079642 from application commit 16abab6. Use https://calebmchenry.github.io/osrs-map-chunk-viewer/ for physical-phone checks.
 
 Acceptance criteria:
 - On a physical phone, verify touch dragging, actual two-finger pinch, staggered finger release, and the next tap; navigation must never paint or erase a chunk.
