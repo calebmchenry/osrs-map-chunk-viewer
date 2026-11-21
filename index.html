@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#1b2423" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="description" content="Explore the Old School RuneScape world map with a coordinate-aligned 64-tile chunk grid." />
+    <title>OSRS · Chunk Atlas</title>
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="brand">
+        <svg aria-hidden="true" viewBox="0 0 32 32" width="32" height="32"><path d="M3 3h26v26H3zM3 12h26M3 21h26M12 3v26M21 3v26"/><path class="filled-cell" d="M12 12h9v9h-9z"/></svg>
+        <div><span class="eyebrow">OLD SCHOOL RUNESCAPE</span><h1>Chunk Atlas</h1></div>
+      </div>
+      <div class="header-meta"><span class="prototype-tag">Map study</span><button id="about-button" class="text-button">About this map</button></div>
+    </header>
+
+    <main class="map-shell">
+      <div id="map" role="region" aria-label="Old School RuneScape surface map. Use arrow keys to pan, plus and minus to zoom, and Enter to inspect the center chunk." aria-describedby="map-help"></div>
+      <div class="map-toolbar">
+        <nav class="area-switcher panel" aria-label="Sample areas">
+          <button data-landmark="lumbridge" aria-pressed="true">Mainland</button>
+          <button data-landmark="kourend" aria-pressed="false">Zeah</button>
+          <button data-landmark="fortis" aria-pressed="false">Varlamore</button>
+        </nav>
+        <button id="world-button" class="panel control-button">Whole world</button>
+        <button id="grid-button" class="panel control-button" aria-pressed="true"><span class="grid-symbol" aria-hidden="true">▦</span> Grid <span class="grid-size">64 × 64</span></button>
+      </div>
+
+      <div class="zoom-controls panel" role="group" aria-label="Map zoom">
+        <button id="zoom-in" aria-label="Zoom in">+</button>
+        <button id="zoom-out" aria-label="Zoom out">−</button>
+      </div>
+      <div class="north-marker" aria-hidden="true"><span>N</span><svg viewBox="0 0 20 30"><path d="M10 1 18 26 10 21 2 26Z"/></svg></div>
+
+      <section class="inspector panel" aria-labelledby="inspection-title">
+        <div class="inspector-heading"><span class="eyebrow">CHUNK INSPECTOR</span><button id="clear-button" aria-label="Clear inspected chunk" hidden>×</button></div>
+        <h2 id="inspection-title">Explore the surface</h2>
+        <p id="inspection-description">Click or tap a chunk to see its game coordinates.</p>
+        <dl id="chunk-details" hidden>
+          <div><dt>Chunk</dt><dd id="chunk-key"></dd></div>
+          <div><dt>Region ID</dt><dd id="region-id"></dd></div>
+          <div><dt>West → East</dt><dd id="x-range"></dd></div>
+          <div><dt>South → North</dt><dd id="y-range"></dd></div>
+        </dl>
+        <p class="inspection-note" id="inspection-note">64 × 64 game tiles per chunk</p>
+      </section>
+
+      <div id="loading" class="load-status panel" role="status">Loading the world map…</div>
+      <div class="map-footer">
+        <p id="map-help">Drag to explore · Scroll or pinch to zoom</p>
+        <span class="scale-bar" id="scale-bar">64 tiles</span>
+      </div>
+    </main>
+
+    <dialog id="about-dialog" aria-labelledby="about-title">
+      <div class="dialog-heading"><span class="eyebrow">THE FIRST MILESTONE</span><button id="close-about" aria-label="Close map information">×</button></div>
+      <h2 id="about-title">A world worth exploring.</h2>
+      <p>This map study checks the artwork and chunk alignment before adding saved color highlights.</p>
+      <dl class="source-details">
+        <div><dt>Artwork</dt><dd><a id="source-link" target="_blank" rel="noreferrer">Jagex official world map</a></dd></div>
+        <div><dt>Map revision</dt><dd id="source-revision"></dd></div>
+        <div><dt>Coverage</dt><dd>Mainland, Zeah & Varlamore</dd></div>
+        <div><dt>Grid</dt><dd>64 × 64 game tiles · surface only</dd></div>
+      </dl>
+      <h3>Check the alignment</h3>
+      <p>Each sample opens a known teleport location. Its marker and outlined chunk share the same game coordinates. Use the inspector to check the bounds as you pan and zoom.</p>
+      <p><a id="reference-link" target="_blank" rel="noreferrer">Reference coordinates from RuneLite</a></p>
+      <h3>A snapshot of the world</h3>
+      <p>This image is dated 18 November 2025, not the live game. Its labels and activity icons are baked in at 2 pixels per tile; zooming further cannot add detail. Alignment is calibrated against four independent map squares at this image’s resolution.</p>
+      <p class="dialog-footnote">Map artwork © Jagex Ltd. Unofficial fan project. Colored highlights and browser saving are the next milestone.</p>
+    </dialog>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
