@@ -54,6 +54,14 @@ export function createHighlightStore(bounds, getStorage = () => globalThis.local
   const canSave = loaded.status !== 'unsupported';
   let status = loaded.status;
 
+  function save() {
+    if (!canSave) return;
+    try {
+      getStorage().setItem(STORAGE_KEY, JSON.stringify({ version: VERSION, highlights: Object.fromEntries(highlights) }));
+      status = 'ready';
+    } catch { status = 'unavailable'; }
+  }
+
   return {
     // Return copies so consumers cannot bypass validation or persistence.
     get highlights() { return new Map(highlights); },
@@ -64,12 +72,13 @@ export function createHighlightStore(bounds, getStorage = () => globalThis.local
       if (!chunkFromKey(key, bounds) || !colorIds.has(color)) return false;
       if (highlights.get(key) === color) highlights.delete(key);
       else highlights.set(key, color);
-      if (canSave) {
-        try {
-          getStorage().setItem(STORAGE_KEY, JSON.stringify({ version: VERSION, highlights: Object.fromEntries(highlights) }));
-          status = 'ready';
-        } catch { status = 'unavailable'; }
-      }
+      save();
+      return true;
+    },
+    clear(key) {
+      if (!chunkFromKey(key, bounds)) return false;
+      highlights.delete(key);
+      save();
       return true;
     },
   };

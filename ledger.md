@@ -2,6 +2,17 @@
 
 Read this file alongside [intent.md](intent.md) before starting work. Keep dated handoff entries here; use WRK tickets for task status and acceptance criteria.
 
+## 2026-11-20 — Manual navigation and clearer highlights
+
+- **`wrk-45921f75` is done.** Removed the Mainland/Zeah/Varlamore segment control, sample reference marker, automatic initial outline, and obsolete sample instructions. The initial view remains at Lumbridge; users explore by panning/zooming or Whole world.
+- Increased every highlight's fill opacity from **30% to 60%**. The grid and selection outline stay above the fills, and the map's labels/icons remain visible underneath.
+- Added a **Clear highlight** eraser below the five colors. Selecting it changes the active tool; tapping a chunk or pressing Enter with the map focused clears that chunk regardless of color. Repeated erasing never paints, and other chunks retain their colors. It has a 44px target, tooltip, accessible name, and pressed-state feedback. The existing same-color toggle still works.
+- Local-storage persistence already existed and is preserved. Erasing shares the coloring save path, including empty saves, failed-write retries, and protection for unsupported versions. Storage key, version-1 coordinate schema, and palette IDs are unchanged; existing saves need no migration. Selected tool/color still starts at Amber each visit.
+- Simplified the mobile toolbar to one row and moved the vertical controls up into the freed space. Very short screens retain internal control scrolling. README and About/help describe the eraser and manual navigation.
+- Validation passed: **22 Node tests**, production build with `/osrs-map-chunk-viewer/` base path, calibrated map hash verification, `git diff --check`, and `wrk validate`. New regression coverage verifies independent clearing/reload, empty-chunk behavior, failed-clear save retry, malformed-save recovery, and unsupported-version preservation.
+- Chrome desktop and iPhone 13 emulation passed existing-save restoration, 60% fill/alignment, click/tap/keyboard erasing, repeated clearing/reload, and navigation without painting/erasing (including touch dragging and synthetic pinch). Corrupt, unsupported, blocked, and quota-failed storage remained usable with warnings and no browser exceptions. All controls were reachable with 44px targets and no page overflow at 1440×1000, 393×852, 320×568, 852×393, 667×375, and 568×320. Desktop, portrait, and landscape screenshots were inspected. An initial layout script attempted a disabled max-zoom button; the layout-only rerun started each viewport from Whole world and waited for zoom animation, and passed.
+- Handoff: changes are **local and uncommitted; neither hosted viewer was updated**. GitHub Pages publishes when committed changes reach `main`. Browser QA files/screenshots are temporary and outside the repository; the owned preview server was stopped after validation. Restart with `npm run dev -- --port 5173` to retain the local save origin. `wrk-8a2343fd` now includes physical-phone eraser checks; it and basemap review `wrk-c5c039d7` remain open.
+
 ## 2026-11-20 — GitHub Pages publication
 
 - **Live public viewer: https://calebmchenry.github.io/osrs-map-chunk-viewer/**. The user requested GitHub Pages for the existing public GitHub repository. **`wrk-fe34fd33` is done** for setup and first publication.

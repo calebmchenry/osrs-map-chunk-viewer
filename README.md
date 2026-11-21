@@ -28,11 +28,11 @@ The map image is included locally, so the app does not depend on a community til
 
 ## Try it
 
-- Switch between **Mainland**, **Zeah**, and **Varlamore** to inspect reference chunks around known teleport coordinates.
 - Drag to pan; use the wheel, trackpad, pinch gesture, or zoom buttons to zoom. Keyboard users can focus the map, pan with arrow keys, zoom with `+`/`−`, and press Enter to color or clear the center chunk.
 - Choose one of five palette colors, then click or tap chunks to highlight them. The same color clears a chunk; a different color replaces it. Disconnected chunks keep their own colors.
+- Select the **Clear highlight** eraser beneath the colors, then tap any chunk to clear it regardless of color. With the map focused, Enter erases the center chunk. Clearing is saved automatically, and tapping an empty chunk leaves it empty.
 - Highlights save automatically and restore on reload in the same browser and origin. Changing the development server port creates a separate save location. Clearing site data removes that browser's save.
-- The color palette sits vertically beneath the zoom buttons, with a checkmark on the active color. The map has no chunk information panel. The gold outline marks the last selected chunk; press Escape with the map focused to dismiss it without changing highlights. Sample-area buttons never change highlights.
+- The color palette sits vertically beneath the zoom buttons, with a checkmark on the active color. Highlights use a 60% fill for visibility while keeping map details readable. The map has no chunk information panel. The gold outline marks the last selected chunk; press Escape with the map focused to dismiss it without changing highlights.
 - Toggle the grid or select **Whole world** to compare distant areas.
 - Open **About this map** for source, revision, and resolution limits.
 
@@ -55,7 +55,7 @@ Local storage key: `osrs-chunk-atlas.highlights`. Version 1 stores palette IDs a
 {"version":1,"highlights":{"50,50":"amber","25,57":"mint"}}
 ```
 
-Only canonical, in-bounds chunks and known palette IDs load. Invalid records are skipped, with a visible status message. Malformed saves are replaced only after a coloring action. Unrecognized versions are preserved and allow temporary coloring without saving. Blocked storage or failed writes keep the map usable and display a warning; a later edit retries saving. The selected palette color starts at Amber each visit. Saves have no account, cloud sync, or cross-tab merging.
+Only canonical, in-bounds chunks and known palette IDs load. Invalid records are skipped, with a visible status message. Malformed saves are replaced only after coloring or clearing a chunk. Unrecognized versions are preserved and allow temporary edits without saving. Blocked storage or failed writes keep the map usable and display a warning; a later edit retries saving. The selected palette color starts at Amber each visit. Saves have no account, cloud sync, or cross-tab merging.
 
 ## Source decision and remaining checks
 

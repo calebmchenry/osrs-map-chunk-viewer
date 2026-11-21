@@ -20,11 +20,6 @@
     <main class="map-shell">
       <div id="map" role="region" aria-label="Old School RuneScape surface map. Use arrow keys to pan, plus and minus to zoom, and Enter to color or clear the center chunk." aria-describedby="map-help color-help"></div>
       <div class="map-toolbar">
-        <nav class="area-switcher panel" aria-label="Sample areas">
-          <button data-landmark="lumbridge" aria-pressed="true">Mainland</button>
-          <button data-landmark="kourend" aria-pressed="false">Zeah</button>
-          <button data-landmark="fortis" aria-pressed="false">Varlamore</button>
-        </nav>
         <button id="world-button" class="panel control-button">Whole world</button>
         <button id="grid-button" class="panel control-button" aria-pressed="true"><span class="grid-symbol" aria-hidden="true">▦</span> Grid <span class="grid-size">64 × 64</span></button>
       </div>
@@ -34,11 +29,15 @@
           <button id="zoom-in" aria-label="Zoom in">+</button>
           <button id="zoom-out" aria-label="Zoom out">−</button>
         </div>
-        <div id="color-palette" class="panel" role="group" aria-label="Highlight color" aria-describedby="color-help"></div>
+        <div id="color-palette" class="panel" role="group" aria-label="Highlight tools" aria-describedby="color-help">
+          <button id="clear-highlight" class="color-swatch clear-swatch" aria-label="Clear highlight" aria-pressed="false" title="Clear highlight — select, then tap a chunk">
+            <svg aria-hidden="true" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m14 3 7 7-10 10H7l-4-4a2 2 0 0 1 0-3L13 3a.7.7 0 0 1 1 0Z M8 8l8 8 M11 20h10"/></svg>
+          </button>
+        </div>
       </div>
       <div class="north-marker" aria-hidden="true"><span>N</span><svg viewBox="0 0 20 30"><path d="M10 1 18 26 10 21 2 26Z"/></svg></div>
 
-      <p id="color-help" class="sr-only">Choose a color, then tap a chunk. Same color clears it; a new color replaces it. Press Escape on the map to dismiss the gold outline.</p>
+      <p id="color-help" class="sr-only">Choose a color, then tap a chunk. Same color clears it; a new color replaces it. Choose Clear highlight to erase any chunk you tap. Highlights save automatically in this browser. Press Escape on the map to dismiss the gold outline.</p>
       <p id="save-status" class="sr-only" role="status">Saved in this browser</p>
       <p id="highlight-announcement" class="sr-only" role="status"></p>
 
@@ -52,8 +51,8 @@
     <dialog id="about-dialog" aria-labelledby="about-title">
       <div class="dialog-heading"><span class="eyebrow">CHUNK ATLAS</span><button id="close-about" aria-label="Close map information">×</button></div>
       <h2 id="about-title">A world worth exploring.</h2>
-      <p>Explore the surface world and use colors to group chunks your way. Pick a color and tap a chunk; tap it with the same color to clear it, or choose another color to replace it.</p>
-      <p>Highlights save automatically in this browser. Clearing site data removes them, and other browsers or devices have their own highlights. The gold outline marks the last selected chunk; sample-area buttons never change your colors. With the map focused, press Escape to dismiss the outline.</p>
+      <p>Explore the surface world and use colors to group chunks your way. Pick a color and tap a chunk; tap it with the same color to clear it, or choose another color to replace it. The eraser below the colors clears any chunk you tap, regardless of its color.</p>
+      <p>Highlights save automatically in this browser. Clearing site data removes them, and other browsers or devices have their own highlights. The gold outline marks the last selected chunk. With the map focused, press Escape to dismiss the outline.</p>
       <dl class="source-details">
         <div><dt>Artwork</dt><dd><a id="source-link" target="_blank" rel="noreferrer">Jagex official world map</a></dd></div>
         <div><dt>Map revision</dt><dd id="source-revision"></dd></div>
@@ -61,7 +60,7 @@
         <div><dt>Grid</dt><dd>64 × 64 game tiles · surface only</dd></div>
       </dl>
       <h3>Check the alignment</h3>
-      <p>Each sample opens a known teleport location. Its marker and outlined chunk share the same game coordinates, and the grid stays aligned as you pan and zoom.</p>
+      <p>The grid and highlights use game coordinates and stay aligned as you pan and zoom. Alignment has been checked against known locations in Lumbridge, Kourend, Civitas illa Fortis, and Falador.</p>
       <p><a id="reference-link" target="_blank" rel="noreferrer">Reference coordinates from RuneLite</a></p>
       <h3>A snapshot of the world</h3>
       <p>This image is dated 18 November 2025, not the live game. Its labels and activity icons are baked in at 2 pixels per tile; zooming further cannot add detail. Alignment is calibrated against four independent map squares at this image’s resolution.</p>

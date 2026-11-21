@@ -58,14 +58,14 @@ function renderHighlight(key) {
   const style = { fillColor: palette.find(({ id }) => id === color).color };
   if (existing) existing.setStyle(style);
   else highlightLayers.set(key, L.rectangle(leafletBounds(chunkFromKey(key, bounds)), {
-    ...style, pane: 'highlights', stroke: false, fillOpacity: 0.3, interactive: false,
+    ...style, pane: 'highlights', stroke: false, fillOpacity: 0.6, interactive: false,
   }).addTo(map));
 }
 
 function updateHighlightStatus() {
   const messages = {
     ready: 'Saved in this browser',
-    invalid: 'Saved highlights could not be read. Coloring a chunk starts a new save.',
+    invalid: 'Saved highlights could not be read. Coloring or clearing a chunk starts a new save.',
     partial: 'Some saved highlights were invalid and skipped.',
     unsupported: 'This save uses a different version. Changes stay in this tab only.',
     unavailable: 'Browser saving is unavailable. Changes stay in this tab only.',
@@ -73,6 +73,14 @@ function updateHighlightStatus() {
   $('save-status').textContent = messages[highlightStore.status];
   $('save-status').classList.toggle('save-warning', highlightStore.status !== 'ready');
   $('save-status').classList.toggle('sr-only', highlightStore.status === 'ready');
+}
+
+function selectColor(color) {
+  activeColor = color;
+  for (const button of $('color-palette').children) {
+    button.setAttribute('aria-pressed', String(color === null
+      ? button.id === 'clear-highlight' : button.dataset.color === color));
+  }
 }
 
 for (const color of palette) {
@@ -86,14 +94,10 @@ for (const color of palette) {
   const swatch = document.createElement('span');
   swatch.setAttribute('aria-hidden', 'true');
   button.append(swatch);
-  button.addEventListener('click', () => {
-    activeColor = color.id;
-    for (const sibling of $('color-palette').children) {
-      sibling.setAttribute('aria-pressed', String(sibling === button));
-    }
-  });
-  $('color-palette').append(button);
+  button.addEventListener('click', () => selectColor(color.id));
+  $('color-palette').insertBefore(button, $('clear-highlight'));
 }
+$('clear-highlight').addEventListener('click', () => selectColor(null));
 for (const key of highlightStore.highlights.keys()) renderHighlight(key);
 updateHighlightStatus();
 
@@ -111,11 +115,6 @@ map.getPane('selection').style.zIndex = '420';
 const selection = L.rectangle([[0, 0], [0, 0]], {
   pane: 'selection', color: '#ffdb88', weight: 2, fill: false, interactive: false,
 });
-const referenceMarker = L.marker([0, 0], {
-  icon: L.divIcon({ className: 'reference-marker', html: '<span></span>', iconSize: [20, 20], iconAnchor: [10, 10] }),
-  keyboard: false,
-  interactive: false,
-});
 
 function outlineChunk(x, y) {
   if (!containsPoint(bounds, x, y)) return;
@@ -125,7 +124,8 @@ function outlineChunk(x, y) {
 function colorChunk(x, y) {
   if (!containsPoint(bounds, x, y)) return;
   const chunk = chunkAt(x, y);
-  highlightStore.toggle(chunk.key, activeColor);
+  if (activeColor === null) highlightStore.clear(chunk.key);
+  else highlightStore.toggle(chunk.key, activeColor);
   renderHighlight(chunk.key);
   updateHighlightStatus();
   outlineChunk(x, y);
@@ -134,20 +134,6 @@ function colorChunk(x, y) {
     ? `Chunk ${chunk.key} colored ${palette.find(({ id }) => id === color).label}.`
     : `Chunk ${chunk.key} cleared.`;
 }
-
-function openLandmark(id) {
-  const landmark = landmarks.find((item) => item.id === id);
-  map.setView([landmark.y, landmark.x], 1.5, { animate: false });
-  referenceMarker.setLatLng([landmark.y + 0.5, landmark.x + 0.5]).addTo(map);
-  outlineChunk(landmark.x, landmark.y);
-  document.querySelectorAll('[data-landmark]').forEach((button) => {
-    button.setAttribute('aria-pressed', String(button.dataset.landmark === id));
-  });
-}
-
-document.querySelectorAll('[data-landmark]').forEach((button) => {
-  button.addEventListener('click', () => openLandmark(button.dataset.landmark));
-});
 
 const guard = new TapGuard();
 mapElement.addEventListener('pointerdown', (event) => guard.down(event.pointerId, event.clientX, event.clientY));
@@ -180,7 +166,6 @@ $('grid-button').addEventListener('click', () => {
 });
 $('world-button').addEventListener('click', () => {
   map.fitBounds(leafletBounds(bounds), { padding: [20, 70], animate: false });
-  document.querySelectorAll('[data-landmark]').forEach((button) => button.setAttribute('aria-pressed', 'false'));
 });
 $('zoom-in').addEventListener('click', () => map.zoomIn());
 $('zoom-out').addEventListener('click', () => map.zoomOut());
@@ -208,4 +193,3 @@ $('about-dialog').addEventListener('click', (event) => {
     if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) event.target.close();
   }
 });
-openLandmark('lumbridge');

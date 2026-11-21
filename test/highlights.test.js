@@ -121,7 +121,56 @@ test('invalid edits and mutations of a snapshot cannot change saved state', () =
   const store = createHighlightStore(bounds, () => storage);
   assert.equal(store.toggle('50,50', 'unknown'), false);
   assert.equal(store.toggle('62,50', 'amber'), false);
+  assert.equal(store.clear('62,50'), false);
   store.highlights.clear();
   assert.equal(store.highlights.get('50,50'), 'amber');
   assert.equal(storage.getItem(STORAGE_KEY), raw);
+});
+
+test('clearing ignores a chunk\'s color, preserves other chunks, and persists through reload', () => {
+  const storage = memoryStorage(encode({ '50,50': 'sky', '25,57': 'mint' }));
+  const store = createHighlightStore(bounds, () => storage);
+  assert.equal(store.clear('50,50'), true);
+  assert.deepEqual(Object.fromEntries(store.highlights), { '25,57': 'mint' });
+  assert.deepEqual(createHighlightStore(bounds, () => storage).highlights, store.highlights);
+  store.clear('50,50');
+  assert.equal(store.colorAt('50,50'), undefined, 'erasing again must never paint');
+  store.clear('25,57');
+  assert.equal(store.status, 'ready');
+  assert.deepEqual(JSON.parse(storage.getItem(STORAGE_KEY)), { version: 1, highlights: {} });
+  assert.equal(createHighlightStore(bounds, () => storage).size, 0);
+});
+
+test('clearing remains usable after a save failure and retries even on an empty chunk', () => {
+  const storage = memoryStorage(encode({ '50,50': 'violet' }));
+  let fail = true;
+  const store = createHighlightStore(bounds, () => ({
+    getItem: storage.getItem,
+    setItem(key, value) { if (fail) throw new Error('QuotaExceededError'); storage.setItem(key, value); },
+  }));
+  store.clear('50,50');
+  assert.equal(store.size, 0);
+  assert.equal(store.status, 'unavailable');
+  assert.equal(createHighlightStore(bounds, () => storage).colorAt('50,50'), 'violet');
+  fail = false;
+  store.clear('50,50');
+  assert.equal(store.status, 'ready');
+  assert.equal(createHighlightStore(bounds, () => storage).size, 0);
+});
+
+test('clearing repairs malformed saves but preserves unsupported versions', () => {
+  const storage = memoryStorage('{bad');
+  const store = createHighlightStore(bounds, () => storage);
+  store.clear('50,50');
+  assert.equal(store.status, 'ready');
+  assert.equal(createHighlightStore(bounds, () => storage).size, 0);
+
+  const raw = JSON.stringify({ version: 2, highlights: { '50,50': 'future' } });
+  const futureStorage = memoryStorage(raw);
+  const futureStore = createHighlightStore(bounds, () => futureStorage);
+  futureStore.toggle('50,50', 'sky');
+  futureStore.clear('50,50');
+  assert.equal(futureStore.size, 0);
+  assert.equal(futureStore.status, 'unsupported');
+  assert.equal(futureStorage.getItem(STORAGE_KEY), raw);
 });
