@@ -2,6 +2,13 @@
 
 Read this file alongside [intent.md](intent.md) before starting work. Keep dated handoff entries here; use WRK tickets for task status and acceptance criteria.
 
+## 2026-11-20 — GitHub remote and main branch
+
+- Added `origin` at https://github.com/calebmchenry/osrs-map-chunk-viewer.git and renamed the local branch from `master` to `main`, as requested.
+- `git push -u origin main` succeeded. GitHub accepted the new branch containing application checkpoint `91f202b`, and local `main` now tracks `origin/main`.
+- Read the WRK status and checked the initially clean working tree. This follow-up commit records the push handoff; application code is unchanged, so the passing tests/build from the previous entry were not rerun. `wrk validate` and `git diff --check` passed for the ledger update.
+- Future repository pushes can use `git push` from `main`. GitHub source synchronization does not update the private hosted viewer; publishing the compact layout and the two existing release checks remain the next steps described below.
+
 ## 2026-11-20 — Compact controls and repository checkpoint
 
 ### Current state
