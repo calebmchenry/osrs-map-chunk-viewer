@@ -7,6 +7,7 @@
     "dev": "vite --host 127.0.0.1",
     "build": "vite build",
     "preview": "vite preview --host 127.0.0.1",
+    "prepare:site": "node scripts/prepare-site.mjs",
     "test": "node --test",
     "verify:map": "node scripts/verify-map.mjs"
   },

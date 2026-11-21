@@ -4,6 +4,7 @@ import './style.css';
 import { mapSource, landmarks, referenceSource } from './map-source.js';
 import { chunkAt, containsPoint, imageBounds, leafletBounds, gridLines } from './coordinates.js';
 import { TapGuard } from './gesture.js';
+import { palette, chunkFromKey, createHighlightStore } from './highlights.js';
 
 const $ = (id) => document.getElementById(id);
 const mapElement = $('map');
@@ -39,6 +40,63 @@ artwork.on('error', () => {
 });
 artwork.addTo(map);
 
+map.createPane('highlights');
+map.getPane('highlights').style.pointerEvents = 'none';
+map.getPane('highlights').style.zIndex = '405';
+const highlightStore = createHighlightStore(bounds);
+const highlightLayers = new Map();
+let activeColor = palette[0].id;
+
+function renderHighlight(key) {
+  const color = highlightStore.colorAt(key);
+  const existing = highlightLayers.get(key);
+  if (!color) {
+    existing?.remove();
+    highlightLayers.delete(key);
+    return;
+  }
+  const style = { fillColor: palette.find(({ id }) => id === color).color };
+  if (existing) existing.setStyle(style);
+  else highlightLayers.set(key, L.rectangle(leafletBounds(chunkFromKey(key, bounds)), {
+    ...style, pane: 'highlights', stroke: false, fillOpacity: 0.3, interactive: false,
+  }).addTo(map));
+}
+
+function updateHighlightStatus() {
+  const messages = {
+    ready: 'Saved in this browser',
+    invalid: 'Saved highlights could not be read. Coloring a chunk starts a new save.',
+    partial: 'Some saved highlights were invalid and skipped.',
+    unsupported: 'This save uses a different version. Changes stay in this tab only.',
+    unavailable: 'Browser saving is unavailable. Changes stay in this tab only.',
+  };
+  $('save-status').textContent = messages[highlightStore.status];
+  $('save-status').classList.toggle('save-warning', highlightStore.status !== 'ready');
+  $('save-status').classList.toggle('sr-only', highlightStore.status === 'ready');
+}
+
+for (const color of palette) {
+  const button = document.createElement('button');
+  button.className = 'color-swatch';
+  button.dataset.color = color.id;
+  button.style.setProperty('--swatch', color.color);
+  button.setAttribute('aria-label', color.label);
+  button.setAttribute('aria-pressed', String(color.id === activeColor));
+  button.title = color.label;
+  const swatch = document.createElement('span');
+  swatch.setAttribute('aria-hidden', 'true');
+  button.append(swatch);
+  button.addEventListener('click', () => {
+    activeColor = color.id;
+    for (const sibling of $('color-palette').children) {
+      sibling.setAttribute('aria-pressed', String(sibling === button));
+    }
+  });
+  $('color-palette').append(button);
+}
+for (const key of highlightStore.highlights.keys()) renderHighlight(key);
+updateHighlightStatus();
+
 map.createPane('grid');
 map.getPane('grid').style.pointerEvents = 'none';
 map.getPane('grid').style.zIndex = '410';
@@ -47,9 +105,11 @@ const grid = L.polyline(gridLines(bounds), {
   interactive: false, smoothFactor: 0,
 }).addTo(map);
 
-let selected = null;
+map.createPane('selection');
+map.getPane('selection').style.pointerEvents = 'none';
+map.getPane('selection').style.zIndex = '420';
 const selection = L.rectangle([[0, 0], [0, 0]], {
-  color: '#ffdb88', weight: 2, fillColor: '#ffdb88', fillOpacity: 0.1, interactive: false,
+  pane: 'selection', color: '#ffdb88', weight: 2, fill: false, interactive: false,
 });
 const referenceMarker = L.marker([0, 0], {
   icon: L.divIcon({ className: 'reference-marker', html: '<span></span>', iconSize: [20, 20], iconAnchor: [10, 10] }),
@@ -57,26 +117,29 @@ const referenceMarker = L.marker([0, 0], {
   interactive: false,
 });
 
-function inspect(x, y, landmark) {
+function outlineChunk(x, y) {
   if (!containsPoint(bounds, x, y)) return;
-  selected = chunkAt(x, y);
-  selection.setBounds(leafletBounds(selected)).addTo(map);
-  $('inspection-title').textContent = landmark?.label ?? `Chunk ${selected.column}, ${selected.row}`;
-  $('inspection-description').textContent = landmark?.description ?? `Selected tile: ${Math.floor(x)}, ${Math.floor(y)}`;
-  $('chunk-key').textContent = selected.key;
-  $('region-id').textContent = selected.regionId;
-  $('x-range').textContent = `${selected.west}–${selected.east - 1}`;
-  $('y-range').textContent = `${selected.south}–${selected.north - 1}`;
-  $('inspection-note').textContent = landmark ? `Reference tile: ${landmark.x}, ${landmark.y} · 64 × 64 tiles` : '64 × 64 tiles · Coordinate ranges are inclusive';
-  $('chunk-details').hidden = false;
-  $('clear-button').hidden = false;
+  selection.setBounds(leafletBounds(chunkAt(x, y))).addTo(map);
+}
+
+function colorChunk(x, y) {
+  if (!containsPoint(bounds, x, y)) return;
+  const chunk = chunkAt(x, y);
+  highlightStore.toggle(chunk.key, activeColor);
+  renderHighlight(chunk.key);
+  updateHighlightStatus();
+  outlineChunk(x, y);
+  const color = highlightStore.colorAt(chunk.key);
+  $('highlight-announcement').textContent = color
+    ? `Chunk ${chunk.key} colored ${palette.find(({ id }) => id === color).label}.`
+    : `Chunk ${chunk.key} cleared.`;
 }
 
 function openLandmark(id) {
   const landmark = landmarks.find((item) => item.id === id);
   map.setView([landmark.y, landmark.x], 1.5, { animate: false });
   referenceMarker.setLatLng([landmark.y + 0.5, landmark.x + 0.5]).addTo(map);
-  inspect(landmark.x, landmark.y, landmark);
+  outlineChunk(landmark.x, landmark.y);
   document.querySelectorAll('[data-landmark]').forEach((button) => {
     button.setAttribute('aria-pressed', String(button.dataset.landmark === id));
   });
@@ -99,25 +162,17 @@ window.addEventListener('blur', () => {
 });
 map.on('dragstart zoomstart', () => { guard.navigated = true; });
 map.on('click', (event) => {
-  if (guard.canSelect) inspect(event.latlng.lng, event.latlng.lat);
+  if (guard.canSelect) colorChunk(event.latlng.lng, event.latlng.lat);
 });
 mapElement.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && event.target === mapElement) selection.remove();
   if (event.key === 'Enter' && event.target === mapElement) {
     event.preventDefault();
     const center = map.getCenter();
-    inspect(center.lng, center.lat);
+    if (!event.repeat) colorChunk(center.lng, center.lat);
   }
 });
 
-$('clear-button').addEventListener('click', () => {
-  selected = null;
-  selection.remove();
-  $('inspection-title').textContent = 'Explore the surface';
-  $('inspection-description').textContent = 'Click or tap a chunk to see its game coordinates.';
-  $('inspection-note').textContent = '64 × 64 game tiles per chunk';
-  $('chunk-details').hidden = true;
-  $('clear-button').hidden = true;
-});
 $('grid-button').addEventListener('click', () => {
   const visible = map.hasLayer(grid);
   if (visible) grid.remove(); else grid.addTo(map);
