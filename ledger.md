@@ -2,14 +2,17 @@
 
 Read this file alongside [intent.md](intent.md) before starting work. Keep dated handoff entries here; use WRK tickets for task status and acceptance criteria.
 
-## 2026-11-20 — GitHub Pages setup
+## 2026-11-20 — GitHub Pages publication
 
-- Tracking setup and first publication in **`wrk-fe34fd33`**. The user requested GitHub Pages for the existing public GitHub repository; target URL is https://calebmchenry.github.io/osrs-map-chunk-viewer/.
+- **Live public viewer: https://calebmchenry.github.io/osrs-map-chunk-viewer/**. The user requested GitHub Pages for the existing public GitHub repository. **`wrk-fe34fd33` is done** for setup and first publication.
 - Added `.github/workflows/pages.yml`: pushes to `main` and manual runs on `main` install locked dependencies with Node.js 22, run tests and the map hash verifier, build `dist`, and deploy with official GitHub Pages actions pinned to release commit SHAs. Build and deployment permissions are separate; publishing is serialized without canceling an active deployment.
 - Pass `actions/configure-pages`'s base path to Vite's `--base` option. Existing `import.meta.env.BASE_URL` map loading already supports this. Ordinary local and private Sites builds keep their existing root path; application code and dependencies are unchanged.
 - README now makes GitHub Pages the primary viewer link and documents automatic/manual deployment, local Pages-path preview, and separate browser saves. The existing owner-private Site retains its identity, audience, and earlier published version; GitHub Pages publication does not migrate highlights.
 - Local validation passed: **19 tests**, calibrated image SHA-256 verification, Pages-path production build, built HTML asset/path checks (JavaScript, CSS, favicon, map descriptor/file), workflow YAML parsing, `git diff --check`, and `wrk validate`.
-- Next: enable workflow-based Pages in GitHub, push this configuration, verify the Actions deployment and live assets, and record the result here before closing the ticket. Existing physical-phone and map-source release checks remain open.
+- Enabled Pages with `build_type: workflow` and HTTPS enforcement. Pushed implementation commit `c6b36d15d4fdd22e28f36af51a10f53f054861cd`; [deployment run 44855345870](https://github.com/calebmchenry/osrs-map-chunk-viewer/actions/runs/44855345870) completed successfully (build and deployment both passed).
+- Live verification: page, JavaScript, CSS, favicon, and map returned HTTP 200; downloaded map SHA-256 matched the calibrated source. Chrome rendered the map and compact vertical palette, loaded the full 6145×4353 image at the repository path, and reported no console warnings/errors. This was a deployment smoke check, not another full interaction or physical-phone test.
+- Handoff: push future updates to `main`; Actions tests/builds/publishes automatically. README also documents manual reruns and local preview with the Pages base path. This documentation/ticket closeout is a follow-up commit and will trigger the same workflow. No deployment credentials were added to the repository.
+- **`wrk-8a2343fd`** (physical phone/memory) and **`wrk-c5c039d7`** (basemap freshness/detail) remain open. Phone validation can now use the public GitHub Pages URL with the compact layout; no private Sites redeployment is required for that check.
 
 ## 2026-11-20 — GitHub remote and main branch
 
