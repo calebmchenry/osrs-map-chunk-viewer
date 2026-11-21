@@ -2,6 +2,15 @@
 
 Read this file alongside [intent.md](intent.md) before starting work. Keep dated handoff entries here; use WRK tickets for task status and acceptance criteria.
 
+## 2026-11-20 — GitHub Pages setup
+
+- Tracking setup and first publication in **`wrk-fe34fd33`**. The user requested GitHub Pages for the existing public GitHub repository; target URL is https://calebmchenry.github.io/osrs-map-chunk-viewer/.
+- Added `.github/workflows/pages.yml`: pushes to `main` and manual runs on `main` install locked dependencies with Node.js 22, run tests and the map hash verifier, build `dist`, and deploy with official GitHub Pages actions pinned to release commit SHAs. Build and deployment permissions are separate; publishing is serialized without canceling an active deployment.
+- Pass `actions/configure-pages`'s base path to Vite's `--base` option. Existing `import.meta.env.BASE_URL` map loading already supports this. Ordinary local and private Sites builds keep their existing root path; application code and dependencies are unchanged.
+- README now makes GitHub Pages the primary viewer link and documents automatic/manual deployment, local Pages-path preview, and separate browser saves. The existing owner-private Site retains its identity, audience, and earlier published version; GitHub Pages publication does not migrate highlights.
+- Local validation passed: **19 tests**, calibrated image SHA-256 verification, Pages-path production build, built HTML asset/path checks (JavaScript, CSS, favicon, map descriptor/file), workflow YAML parsing, `git diff --check`, and `wrk validate`.
+- Next: enable workflow-based Pages in GitHub, push this configuration, verify the Actions deployment and live assets, and record the result here before closing the ticket. Existing physical-phone and map-source release checks remain open.
+
 ## 2026-11-20 — GitHub remote and main branch
 
 - Added `origin` at https://github.com/calebmchenry/osrs-map-chunk-viewer.git and renamed the local branch from `master` to `main`, as requested.

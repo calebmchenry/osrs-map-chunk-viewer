@@ -1,12 +1,12 @@
 # OSRS Map Chunk Viewer
 
-A local browser viewer with authentic surface-map artwork, a calibrated 64×64-tile grid, and saved color highlights. See [intent.md](intent.md) for the first-version scope and [ledger.md](ledger.md) for the current handoff.
+A browser viewer with authentic surface-map artwork, a calibrated 64×64-tile grid, and saved color highlights. See [intent.md](intent.md) for the first-version scope and [ledger.md](ledger.md) for the current handoff.
 
 ## Open on a phone
 
-Use the private hosted viewer: **https://osrs-chunk-atlas.feistymesa3.chatgpt.site**. Sign in with the owning ChatGPT account if prompted. The `127.0.0.1` development URL below only works on the development computer; it is not a phone-accessible preview.
+Open **https://calebmchenry.github.io/osrs-map-chunk-viewer/** on a phone or desktop. The GitHub Pages viewer is public and needs no sign-in. The `127.0.0.1` development URL below only works on the development computer; it is not a phone-accessible preview.
 
-Highlights save in the browser where you open the hosted viewer. The hosted URL and local development URL have separate saves, as do an in-app browser and Safari/Chrome. Keep using the same browser and URL to retain your highlights.
+Highlights save in the browser where you open the viewer. GitHub Pages, the existing [private Sites viewer](https://osrs-chunk-atlas.feistymesa3.chatgpt.site), and local development have separate browser origins and separate saves. An in-app browser and Safari/Chrome can also have separate storage. Existing private-viewer highlights do not automatically transfer to GitHub Pages; keep using the same browser and URL to retain your highlights. Public hosting does not upload or share your saved highlights.
 
 ## Run
 
@@ -24,7 +24,7 @@ npm run build
 npm run preview
 ```
 
-The map image is included locally, so the app does not depend on a community tile server. Optional Google Fonts fall back to system fonts when unavailable. No API keys, account, backend, or hosting configuration are needed.
+The map image is included locally, so the app does not depend on a community tile server. Optional Google Fonts fall back to system fonts when unavailable. No API keys, account, or backend are needed to run the app.
 
 ## Try it
 
@@ -67,7 +67,24 @@ Plain JavaScript + Leaflet (`CRS.Simple`) handle navigation; Vite provides devel
 
 Project work is tracked with the WRK CLI under `.wrk/`.
 
-## Update the hosted viewer
+## Update GitHub Pages
+
+[`.github/workflows/pages.yml`](.github/workflows/pages.yml) builds and deploys on every push to `main`. It installs locked dependencies with Node.js 22, runs the tests and map hash verifier, builds `dist`, and publishes it with GitHub's Pages actions. Only the deploy job has Pages write permission, and deployments are serialized.
+
+The workflow takes the site's base path from GitHub Pages and passes it to Vite, so bundled assets, the favicon, and the map image work under `/osrs-map-chunk-viewer/`. This follows [Vite's GitHub Pages guidance](https://vite.dev/guide/static-deploy.html#github-pages); ordinary local and private Sites builds retain the root path.
+
+Push committed changes to `main` with `git push`, then check [the deployment workflow](https://github.com/calebmchenry/osrs-map-chunk-viewer/actions/workflows/pages.yml). To redeploy without a new commit, choose **Run workflow** with the `main` branch. Repository **Settings → Pages → Source** must be **GitHub Actions**; no personal access token or custom repository secret is required for deployment.
+
+To reproduce the Pages build locally:
+
+```sh
+npm run build -- --base /osrs-map-chunk-viewer/
+npm run preview -- --base /osrs-map-chunk-viewer/
+```
+
+Open `http://127.0.0.1:4173/osrs-map-chunk-viewer/` (or the port printed by Vite).
+
+## Update the private Sites viewer
 
 `.openai/hosting.json` records the existing private Site identity and `dist` output directory. Keep that ID and owner-only access when publishing updates with the Sites skill.
 
